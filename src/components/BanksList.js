@@ -97,7 +97,7 @@ const BanksList = (props) => {
     },
   ];
 
-  const [banks, setBanks] = useState(banksTempl);
+  const [banks, setBanks] = useState({});
 
 
   // const [sortingBy, setSortingBy] = useState(sortByFirstNameUp);
@@ -214,9 +214,9 @@ const BanksList = (props) => {
   //   } else setArrayUsers(Object.values(users));
   // }, [items.search, users]);
 
-  // React.useEffect(() => {
-  //   loadBanks();
-  // }, []);
+  React.useEffect(() => {
+    loadBanks();
+  }, []);
 
   return (
     <>
@@ -243,7 +243,13 @@ const BanksList = (props) => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {banks.map((bank) => (
+          {Object.values(banks)
+          .sort((a, b) => {
+            if(a.bankname.toLowerCase() > b.bankname.toLowerCase()) return 1;
+            if(a.bankname.toLowerCase() < b.bankname.toLowerCase()) return -1;
+            return 0;
+          })
+          .map((bank) => (
             <TableRow key={bank.id}>
               <TableCell className={classes.body} align="center">{bank.bankname}</TableCell>
               <TableCell className={classes.body} align="center">{bank.iterestrate}</TableCell>
