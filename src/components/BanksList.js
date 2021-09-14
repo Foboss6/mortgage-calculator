@@ -45,64 +45,7 @@ const BanksList = (props) => {
   const { classes } = props;
   const history = useHistory();
 
-  // const sortByFirstNameUp = 'sort-by-first-name-up';
-  // const sortByFirstNameDown = 'sort-by-first-name-down';
-  // const sortByLastNameUp = 'sort-by-last-name-up';
-  // const sortByLastNameDown = 'sort-by-last-name-down';
-  // const sortByPositionUp = 'sort-by-position-up';
-  // const sortByPositionDown = 'sort-by-position-down';
-
-  // let sortButtonColor = {
-  //   sortByFirstNameUp: 'primary',
-  //   sortByFirstNameDown: 'default',
-  //   sortByLastNameUp: 'default',
-  //   sortByLastNameDown: 'default',
-  //   sortByPositionUp: 'default',
-  //   sortByPositionDown: 'default'
-  // }
-
-  // const setDefaultColor = (obj) => {
-  //   for(let key in obj)
-  //     if(obj.hasOwnProperty(key))
-  //       obj[key] = 'default';
-  // }
-
-  // const {users, deleteUser, addNewUser} = useUsersActions();
-  // const { items, addNewItem } = useLocalContextActions();
-  // const [users, setUsers] = useState({});
-  const banksTempl = [
-    {
-      id: 111,
-      bankname: 'PrivatBank',
-      iterestrate: '20%',
-      maxloan: 1000000,
-      mindownpayment: '10%',
-      loanterm: '12 months'
-    },
-    {
-      id: 222,
-      bankname: 'AlphaBank',
-      iterestrate: '49%',
-      maxloan: 100000,
-      mindownpayment: '20%',
-      loanterm: '18 months'
-    },
-    {
-      id: 333,
-      bankname: 'SuperBank',
-      iterestrate: '2%',
-      maxloan: 1000000,
-      mindownpayment: '1%',
-      loanterm: '24 months'
-    },
-  ];
-
   const [banks, setBanks] = useState({});
-
-
-  // const [sortingBy, setSortingBy] = useState(sortByFirstNameUp);
-
-  // const [arrayUsers, setArrayUsers] = useState(Object.values(users));
 
   // function for loading banks from the database
   const loadBanks = () => {
@@ -122,21 +65,10 @@ const BanksList = (props) => {
     .catch(console.log);
   }
 
-  // function for sorting array
-  const sortingArray = (array, direction, fieldName) => {
-    array.sort((a, b) => {
-      if(direction === 'up') {
-        if(a[fieldName].toLowerCase() > b[fieldName].toLowerCase()) return 1;
-        if(a[fieldName].toLowerCase() < b[fieldName].toLowerCase()) return -1;
-        return 0;
-      } else {
-        if(a[fieldName].toLowerCase() < b[fieldName].toLowerCase()) return 1;
-        if(a[fieldName].toLowerCase() > b[fieldName].toLowerCase()) return -1;
-        return 0;
-      }
-    });
-    return array;
-  }
+  // load a banks list from the database when component did mount
+  React.useEffect(() => {
+    loadBanks();
+  }, []);
   
   // const sortedUsers = useMemo(() => {
   //   setDefaultColor(sortButtonColor);
@@ -195,13 +127,9 @@ const BanksList = (props) => {
   }
 
   const handleEditButtonClick = (event) => {
-    // addNewItem(users[event.currentTarget.value]);
-    // history.push(`/users/${event.currentTarget.value}`);
+    history.push(`/banks/${event.currentTarget.value}`);
   }
 
-  const handleFloatButtonClick = () => {
-    // history.push(`/users/create`);
-  } 
 
   // SEARCH-------------
   // React.useEffect(()=>{
@@ -213,10 +141,6 @@ const BanksList = (props) => {
   //         : false)));
   //   } else setArrayUsers(Object.values(users));
   // }, [items.search, users]);
-
-  React.useEffect(() => {
-    loadBanks();
-  }, []);
 
   return (
     <>
@@ -252,7 +176,7 @@ const BanksList = (props) => {
           .map((bank) => (
             <TableRow key={bank.id}>
               <TableCell className={classes.body} align="center">{bank.bankname}</TableCell>
-              <TableCell className={classes.body} align="center">{bank.iterestrate}</TableCell>
+              <TableCell className={classes.body} align="center">{bank.interestrate}</TableCell>
               <TableCell className={classes.body} align="center">{bank.maxloan}</TableCell>
               <TableCell className={classes.body} align="center">{bank.mindownpayment}</TableCell>
               <TableCell className={classes.body} align="center">{bank.loanterm}</TableCell>
@@ -270,7 +194,7 @@ const BanksList = (props) => {
       </Table>
     </Paper>
     <div className={classes.floatingButton}>
-      <Fab color="primary" aria-label="add" onClick={handleFloatButtonClick}>
+      <Fab color="primary" aria-label="add" onClick={() => history.push(`/banks/create`)}>
         <AddIcon />
       </Fab>
     </div>
