@@ -69,78 +69,30 @@ const BanksList = (props) => {
   React.useEffect(() => {
     loadBanks();
   }, []);
-  
-  // const sortedUsers = useMemo(() => {
-  //   setDefaultColor(sortButtonColor);
-
-  //   switch(sortingBy) {
-  //     case sortByFirstNameUp : 
-  //       sortButtonColor.sortByFirstNameUp='primary';
-  //       return sortingArray(arrayUsers, 'up', 'firstname');
-
-  //     case sortByFirstNameDown :
-  //       sortButtonColor.sortByFirstNameDown='primary';
-  //       return sortingArray(arrayUsers, 'down', 'firstname');
-
-  //     case sortByLastNameUp :
-  //       sortButtonColor.sortByLastNameUp='primary';
-  //       return sortingArray(arrayUsers, 'up', 'lastname');
-
-  //     case sortByLastNameDown :
-  //       sortButtonColor.sortByLastNameDown='primary';
-  //       return sortingArray(arrayUsers, 'down', 'lastname');
-
-  //       case sortByPositionUp :
-  //         sortButtonColor.sortByPositionUp='primary';
-  //         return sortingArray(arrayUsers, 'up', 'position');
-
-  //     case sortByPositionDown :
-  //       sortButtonColor.sortByPositionDown='primary';
-  //       return sortingArray(arrayUsers, 'down', 'position');
-
-  //     default : return arrayUsers;
-  //   }
-  // }, [sortingBy, arrayUsers]);
 
   const handleDeleteButtonClick = (event) => {
 
-    // const usersId = event.currentTarget.value;
+    const banksId = event.currentTarget.value;
 
-    // fetch(`${SERVER_PATH}/users/delete`, {
-    //   method: 'delete',
-    //   headers: {'Content-Type': 'application/json'},
-    //   body: JSON.stringify({id: usersId})
-    // })
-    // .then((res) => res.json())
-    // .then(data => {
-    //   if(data === 'success') {
-    //     // if the user was successfully delete from database, delete him from the list
-    //     setUsers((prevState) => {
-    //       const users = {...prevState}
-    //       delete users[usersId];
-    //       return users;
-    //     })
-    //   }
-    //   else console.log(data);
-    // })
-    // .catch(console.log);
+    fetch(`${SERVER_PATH}/banks/delete`, {
+      method: 'delete',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({id: banksId})
+    })
+    .then((res) => res.json())
+    .then(data => {
+      if(data === 'success') {
+        // if the bank was successfully delete from the database, delete it from the list
+        setBanks((prevState) => {
+          const banks = {...prevState}
+          delete banks[banksId];
+          return banks;
+        })
+      }
+      else console.log(data);
+    })
+    .catch(console.log);
   }
-
-  const handleEditButtonClick = (event) => {
-    history.push(`/banks/${event.currentTarget.value}`);
-  }
-
-
-  // SEARCH-------------
-  // React.useEffect(()=>{
-  //   if(items.search) {
-  //     setArrayUsers(Object.values(users).filter(user => (
-  //       user.firstname 
-  //         ? user.firstname.toLowerCase().includes(items.search.name.toLowerCase()) || 
-  //           user.lastname.toLowerCase().includes(items.search.name.toLowerCase())
-  //         : false)));
-  //   } else setArrayUsers(Object.values(users));
-  // }, [items.search, users]);
 
   return (
     <>
@@ -181,7 +133,7 @@ const BanksList = (props) => {
               <TableCell className={classes.body} align="center">{bank.mindownpayment}</TableCell>
               <TableCell className={classes.body} align="center">{bank.loanterm}</TableCell>
               <TableCell align="right">
-                <IconButton aria-label="edit" value={bank.id} onClick={handleEditButtonClick}>
+                <IconButton aria-label="edit" value={bank.id} onClick={(event) => history.push(`/banks/${event.currentTarget.value}`)}>
                   <EditIcon />
                 </IconButton>
                 <IconButton aria-label="delete" value={bank.id} onClick={handleDeleteButtonClick}>
