@@ -15,6 +15,7 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import Paper from '@material-ui/core/Paper';
 import Fab from '@material-ui/core/Fab';
 import AddIcon from '@material-ui/icons/Add';
+import Button from '@material-ui/core/Button';
 
 const styles = theme => ({
   root: {
@@ -96,6 +97,14 @@ const BanksList = (props) => {
 
   return (
     <>
+    <div>
+      <Button 
+        variant="contained" 
+        onClick={() => history.push('/mortgage-calculator')}
+      >
+        Mortgage Calculator
+      </Button>
+    </div>
     <Paper className={classes.root}>
       <Table className={classes.table}>
         <TableHead>
