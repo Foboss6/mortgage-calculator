@@ -21,6 +21,9 @@ const useStyles = makeStyles({
   },
   paper: {
     width: '80%',
+    margin: '1% auto',
+    boxShadow: '0 3px 10px rgb(0 0 0 / 0.2)',
+    background: 'transparent',
   }
 });
 
@@ -185,56 +188,58 @@ const MortgageCalculator = () => {
           BACK
         </Button>
       </div>
-      <h2> Welcome to The Mortgage Calculator</h2>
-      <div>
-        <TextField
-          id="outlined-helperText-bankname"
-          label="Initial Loan"
-          helperText="Please indicate your initial loan"
-          error={helperError.initialloan}
-          variant="outlined"
-          margin="normal"
-          onChange={(ev) => onInputChange(ev, 'initialloan')}
-        />
-        <TextField
-          id="outlined-helperText-interestrate"
-          label="Down Payment"
-          helperText="Please indicate the down payment"
-          error={helperError.downpayment}
-          variant="outlined"
-          margin="normal"
-          onChange={(ev) => onInputChange(ev, 'downpayment')}
-        />
-        <TextField
-          id="outlined-select-currency"
-          select
-          label="Select The Bank"
-          value={currency}
-          onChange={handleBankChange}
-          helperText="Please select the bank you need"
-          error={helperError.bankname}
-          variant="outlined"
-          margin="normal"
-        >
-        {
-          banks
-          ?
-            Object.values(banks).map((bank) => (
-              <MenuItem key={bank.bankname} value={bank.bankname}>
-                {bank.bankname}
-              </MenuItem>
-            ))
-          :
-            <></>
-        }
-        </TextField>
+      <div className="center">
+        <h2> Welcome to The Mortgage Calculator</h2>
         <div>
-          <Button 
-            variant="contained" 
-            onClick={handleButtonClick}
+          <TextField
+            id="outlined-helperText-bankname"
+            label="Initial Loan"
+            helperText="Please indicate your initial loan"
+            error={helperError.initialloan}
+            variant="outlined"
+            margin="normal"
+            onChange={(ev) => onInputChange(ev, 'initialloan')}
+          />
+          <TextField
+            id="outlined-helperText-interestrate"
+            label="Down Payment"
+            helperText="Please indicate the down payment"
+            error={helperError.downpayment}
+            variant="outlined"
+            margin="normal"
+            onChange={(ev) => onInputChange(ev, 'downpayment')}
+          />
+          <TextField
+            id="outlined-select-currency"
+            select
+            label="Select The Bank"
+            value={currency}
+            onChange={handleBankChange}
+            helperText="Please select the bank you need"
+            error={helperError.bankname}
+            variant="outlined"
+            margin="normal"
           >
-            Calculate
-          </Button>
+          {
+            banks
+            ?
+              Object.values(banks).map((bank) => (
+                <MenuItem key={bank.bankname} value={bank.bankname}>
+                  {bank.bankname}
+                </MenuItem>
+              ))
+            :
+              <></>
+          }
+          </TextField>
+          <div>
+            <Button 
+              variant="contained" 
+              onClick={handleButtonClick}
+            >
+              Calculate
+            </Button>
+          </div>
         </div>
       </div>
       {

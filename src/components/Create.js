@@ -49,74 +49,89 @@ const Edit = () => {
   return(
     <div>
       <div>
-        <h2>You can add a new bank to the database</h2>
-      </div>
-      <div>
-        <TextField
-          id="outlined-helperText-bankname"
-          label="Bank Name"
-          defaultValue={bank.bankname}
-          variant="outlined"
-          margin="normal"
-          onChange={(ev) => onInputChange(ev, 'bankname')}
-        />
-      </div>
-      <div>
-        <TextField
-          id="outlined-helperText-interestrate"
-          label="Interest Rate"
-          defaultValue={bank.interestrate}
-          variant="outlined"
-          margin="normal"
-          onChange={(ev) => onInputChange(ev, 'interestrate')}
-        />
-      </div>
-      <div>
-        <TextField
-          id="outlined-helperText-maxloan"
-          label="Maximum Loan"
-          defaultValue={bank.maxloan}
-          variant="outlined"
-          margin="normal"
-          onChange={(ev) => onInputChange(ev, 'maxloan')}
-        />
-      </div>
-      <div>
-        <TextField
-          id="outlined-helperText-mindownpayment"
-          label="Minimum Down Payment"
-          defaultValue={bank.mindownpayment}
-          variant="outlined"
-          margin="normal"
-          onChange={(ev) => onInputChange(ev, 'mindownpayment')}
-        />
-      </div>
-      <div>
-        <TextField
-          id="outlined-helperText-loanterm"
-          label="Loan Term"
-          defaultValue={bank.loanterm}
-          variant="outlined"
-          margin="normal"
-          onChange={(ev) => onInputChange(ev, 'loanterm')}
-        />
-      </div>
-      {
-        !!errorText
-        ?
-          <div>
-            <p>{errorText}</p>
-          </div>
-        :
-          <></>
-      }
-      <div>
         <Button 
           variant="contained" 
-          onClick={handleButtonClick}
+          onClick={() => history.push('/')}
         >
-          Add New Bank
+          BACK
         </Button>
+      </div>
+      <div className="center w-80 b-shadow ma">
+        <div>
+          <h2>You can add a new bank to the database</h2>
+        </div>
+        <div>
+          <TextField
+            className="w-60"
+            id="outlined-helperText-bankname"
+            label="Bank Name"
+            defaultValue={bank.bankname}
+            variant="outlined"
+            margin="normal"
+            onChange={(ev) => onInputChange(ev, 'bankname')}
+          />
+        </div>
+        <div>
+          <TextField
+            className="w-60"
+            id="outlined-helperText-interestrate"
+            label="Interest Rate"
+            defaultValue={bank.interestrate}
+            variant="outlined"
+            margin="normal"
+            onChange={(ev) => onInputChange(ev, 'interestrate')}
+          />
+        </div>
+        <div>
+          <TextField
+            className="w-60"
+            id="outlined-helperText-maxloan"
+            label="Maximum Loan"
+            defaultValue={bank.maxloan}
+            variant="outlined"
+            margin="normal"
+            onChange={(ev) => onInputChange(ev, 'maxloan')}
+          />
+        </div>
+        <div>
+          <TextField
+            className="w-60"
+            id="outlined-helperText-mindownpayment"
+            label="Minimum Down Payment"
+            defaultValue={bank.mindownpayment}
+            variant="outlined"
+            margin="normal"
+            onChange={(ev) => onInputChange(ev, 'mindownpayment')}
+          />
+        </div>
+        <div>
+          <TextField
+            className="w-60"
+            id="outlined-helperText-loanterm"
+            label="Loan Term"
+            defaultValue={bank.loanterm}
+            variant="outlined"
+            margin="normal"
+            onChange={(ev) => onInputChange(ev, 'loanterm')}
+          />
+        </div>
+        {
+          !!errorText
+          ?
+            <div>
+              <p>{errorText}</p>
+            </div>
+          :
+            <></>
+        }
+        <div>
+          <Button 
+            variant="contained" 
+            onClick={handleButtonClick}
+          >
+            Add New Bank
+          </Button>
+        </div>
       </div>
     </div>
   )

@@ -96,7 +96,7 @@ const BanksList = (props) => {
   }
 
   return (
-    <>
+    <div className="banks">
     <div>
       <Button 
         variant="contained" 
@@ -159,7 +159,7 @@ const BanksList = (props) => {
         <AddIcon />
       </Fab>
     </div>
-    </>
+    </div>
   );
 } 
 

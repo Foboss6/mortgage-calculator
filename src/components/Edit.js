@@ -49,10 +49,20 @@ const Edit = () => {
   return(
       !!bank.id
       ?
+      <div>
         <div>
+          <Button 
+            variant="contained" 
+            onClick={() => history.push('/')}
+          >
+            BACK
+          </Button>
+        </div>
+        <div className="center w-80 b-shadow ma">
           <h3>Edit {bank.bankname}'s data</h3>
           <div>
             <TextField
+              className="w-60"
               id="outlined-helperText-bankname"
               label="Bank Name"
               defaultValue={bank.bankname}
@@ -63,6 +73,7 @@ const Edit = () => {
           </div>
           <div>
             <TextField
+              className="w-60"
               id="outlined-helperText-interestrate"
               label="Interest Rate"
               defaultValue={bank.interestrate}
@@ -73,6 +84,7 @@ const Edit = () => {
           </div>
           <div>
             <TextField
+              className="w-60"
               id="outlined-helperText-maxloan"
               label="Maximum Loan"
               defaultValue={bank.maxloan}
@@ -83,6 +95,7 @@ const Edit = () => {
           </div>
           <div>
             <TextField
+              className="w-60"
               id="outlined-helperText-mindownpayment"
               label="Minimum Down Payment"
               defaultValue={bank.mindownpayment}
@@ -93,6 +106,7 @@ const Edit = () => {
           </div>
           <div>
             <TextField
+              className="w-60"
               id="outlined-helperText-loanterm"
               label="Loan Term"
               defaultValue={bank.loanterm}
@@ -110,6 +124,7 @@ const Edit = () => {
             </Button>
           </div>
         </div>
+      </div>
       :
       <div>
         <h3>An error in loading bank's data</h3>

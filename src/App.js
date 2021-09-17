@@ -1,5 +1,5 @@
-import { Switch, Route } from 'react-router-dom';
-import './App.css';
+import { Switch, Route, Redirect } from 'react-router-dom';
+
 import BanksList from './components/BanksList';
 import Edit from './components/Edit';
 import Create from './components/Create';
@@ -9,6 +9,9 @@ function App() {
   return (
     <Switch>
       <Route exact path='/'>
+        <Redirect to="/banks" />
+      </Route>
+      <Route exact path='/banks'>
         <BanksList />
       </Route>
       <Route exact path='/mortgage-calculator'>
