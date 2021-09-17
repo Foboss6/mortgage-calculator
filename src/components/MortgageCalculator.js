@@ -30,22 +30,7 @@ const MortgageCalculator = () => {
   const history = useHistory();
 
   const [inputData, setInputData] = React.useState({});
-  const [outputData, setOutputData] = React.useState({
-    1: {
-      month: 1,
-      totalpayment: 1564,
-      interestpayment: 15,
-      loanbalance: 51654984,
-      equity: 564987987654,
-    },
-    2: {
-      month: 2,
-      totalpayment: 23232323,
-      interestpayment: 123123,
-      loanbalance: 213123123123,
-      equity: 123123123,
-    },
-  });
+  const [outputData, setOutputData] = React.useState({});
   const [banks, setBanks] = React.useState({});
   const [currency, setCurrency] = React.useState('');
   const [isCalculated, setIsCalculated] = React.useState(false);
@@ -129,31 +114,66 @@ const MortgageCalculator = () => {
   const handleButtonClick = () => {
     clearAllErrors();
 
-    if( !inputData.initialloan ) return setError('initialloan');
-    if( !inputData.downpayment ) return setError('downpayment');
     if( !inputData.bankname ) return setError('bankname');
-      
+    if( !inputData.initialloan ) return setError('initialloan');
+    if( parseInt(inputData.initialloan) > parseInt(inputData.bankData.maxloan) ) return setError('initialloan');
+    if( !inputData.downpayment ) return setError('downpayment');
+    if( parseInt(inputData.downpayment) < parseInt(inputData.bankData.mindownpayment) ) return setError('downpayment');
+
     if(inputData.bankData.id) {
-      let p = parseInt(inputData.initialloan, 10) - parseInt(inputData.downpayment,10);
+      let p = parseInt(inputData.initialloan, 10);
       let r = parseInt(inputData.bankData.interestrate, 10)/100;
       let n = 1;
       if(inputData.bankData.loanterm.includes('m')) n = parseInt(inputData.bankData.loanterm, 10);
       else if(inputData.bankData.loanterm.includes('y')) n = parseInt(inputData.bankData.loanterm, 10) * 12;
       
-      let m = ((p*(r/12)*Math.pow((1+r/12), n))/(Math.pow((1+r/12), n) - 1)).toFixed(2);
+      let m = Number(((p*(r/12)*Math.pow((1+r/12), n))/(Math.pow((1+r/12), n) - 1)).toFixed(2));
       
       console.log('p=',p);
       console.log('r=',r);
       console.log('n=',n);
       console.log('m=',m);
 
+      let interestpayment = Number((p*r/12).toFixed(2));
+      let loanbalance = Number((parseInt(inputData.initialloan, 10) - m + interestpayment).toFixed(2));
+      let equity = Number((parseInt(inputData.downpayment, 10) + m - interestpayment).toFixed(2));
+      let calcData = {};
+      
+      
+      calcData = {
+        1: {
+          month: 1,
+          totalpayment: m,
+          interestpayment: interestpayment,
+          loanbalance: loanbalance,
+          equity: equity,
+        }
+      };
+      for(let i=2; i<=n; i++) {
+        interestpayment = Number((loanbalance*r/12).toFixed(2));
+        console.log(i,'ip1=',interestpayment);
+        loanbalance = Number((loanbalance - m + interestpayment).toFixed(2));
+        console.log(i,'lb1=',loanbalance);
+        equity = Number((equity + m - interestpayment).toFixed(2));
+        console.log(i,'eq = ', equity);
+
+        calcData = {
+          ...calcData,
+          [i]: {
+            month: i,
+            totalpayment: m,
+            interestpayment: interestpayment,
+            loanbalance: loanbalance,
+            equity: equity,
+          }
+        };
+      }
+
+      setOutputData(calcData);
+
       setIsCalculated(true);
     } else  setIsCalculated(false);
   }
-
-  React.useEffect(() => {
-    console.log(inputData.bankData);
-  }, [inputData]);
 
   return (
     <div>
@@ -172,7 +192,6 @@ const MortgageCalculator = () => {
           label="Initial Loan"
           helperText="Please indicate your initial loan"
           error={helperError.initialloan}
-          // defaultValue={bank.bankname}
           variant="outlined"
           margin="normal"
           onChange={(ev) => onInputChange(ev, 'initialloan')}
@@ -182,7 +201,6 @@ const MortgageCalculator = () => {
           label="Down Payment"
           helperText="Please indicate the down payment"
           error={helperError.downpayment}
-          // defaultValue={bank.interestrate}
           variant="outlined"
           margin="normal"
           onChange={(ev) => onInputChange(ev, 'downpayment')}
