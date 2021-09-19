@@ -14,7 +14,7 @@ function App() {
       <Route exact path='/banks'>
         <BanksList />
       </Route>
-      <Route exact path='/mortgage-calculator'>
+      <Route path='/mortgage-calculator'>
         <MortgageCalculator />
       </Route>
       <Route exact path='/banks/create'>

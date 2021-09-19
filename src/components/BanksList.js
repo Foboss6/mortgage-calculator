@@ -10,6 +10,7 @@ import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import IconButton from '@material-ui/core/IconButton';
+import HistoryIcon from '@material-ui/icons/History';
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
 import Paper from '@material-ui/core/Paper';
@@ -138,10 +139,13 @@ const BanksList = (props) => {
             <TableRow key={bank.id}>
               <TableCell className={classes.body} align="center">{bank.bankname}</TableCell>
               <TableCell className={classes.body} align="center">{bank.interestrate}</TableCell>
-              <TableCell className={classes.body} align="center">{bank.maxloan}</TableCell>
-              <TableCell className={classes.body} align="center">{bank.mindownpayment}</TableCell>
+              <TableCell className={classes.body} align="center">$ {bank.maxloan}</TableCell>
+              <TableCell className={classes.body} align="center">$ {bank.mindownpayment}</TableCell>
               <TableCell className={classes.body} align="center">{bank.loanterm}</TableCell>
               <TableCell align="right">
+                <IconButton aria-label="history" value={bank.bankname} onClick={(event) => history.push(`/mortgage-calculator/${event.currentTarget.value}`)}>
+                  <HistoryIcon />
+                </IconButton>
                 <IconButton aria-label="edit" value={bank.id} onClick={(event) => history.push(`/banks/${event.currentTarget.value}`)}>
                   <EditIcon />
                 </IconButton>

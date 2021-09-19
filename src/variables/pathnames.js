@@ -1,1 +1,1 @@
-export const SERVER_PATH = 'http://localhost:3001';
+export const SERVER_PATH = 'https://mortgage-calc-server.herokuapp.com';

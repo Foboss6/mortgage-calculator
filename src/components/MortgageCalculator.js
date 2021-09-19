@@ -1,5 +1,5 @@
 import React from 'react';
-import { useHistory } from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router-dom';
 
 import { makeStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
@@ -31,12 +31,24 @@ const MortgageCalculator = () => {
   const classes = useStyles();
 
   const history = useHistory();
+  const location = useLocation();
 
-  const [inputData, setInputData] = React.useState({});
+  const [inputData, setInputData] = React.useState({
+    initialloan: '',
+    downpayment: '',
+    bankname: '',
+  });
+
   const [outputData, setOutputData] = React.useState({});
   const [banks, setBanks] = React.useState({});
-  const [currency, setCurrency] = React.useState('');
-  const [isCalculated, setIsCalculated] = React.useState(false);
+  // const [isCalculated, setIsCalculated] = React.useState(false);
+
+  
+  const splitedPathname = location.pathname.split('/');
+  const historyBank = splitedPathname[splitedPathname.length - 1].includes('mortgage-calculator') ? '' : splitedPathname[splitedPathname.length - 1];
+
+  const [currentHistory, setCurrentHistory] = React.useState('');
+  const [bankHistory, setBankHistory] = React.useState({});
 
   const [helperError, setHelperError] = React.useState({
     bankname: false,
@@ -68,13 +80,98 @@ const MortgageCalculator = () => {
     .then(res => res.json())
     .then(data => {
       data.forEach((el) => {
-        setBanks((prevState) => {
-          return {
-            ...prevState,
-            [el.id]: el,
-          }
-        })
+        if(data.length) {
+          setBanks((prevState) => {
+            return {
+              ...prevState,
+              [el.id]: el,
+            }
+          });
+        } else console.log(data);
       });
+    })
+    .catch(console.log);
+  }
+
+  const calculatePayments = () => {
+    let p = parseInt(inputData.initialloan, 10);
+    let r = parseInt(inputData.bankData.interestrate, 10)/100;
+    let n = 1;
+    if(inputData.bankData.loanterm.toLowerCase().includes('m')) n = parseInt(inputData.bankData.loanterm, 10);
+    else if(inputData.bankData.loanterm.toLowerCase().includes('y')) n = parseInt(inputData.bankData.loanterm, 10) * 12;
+    
+    let m = Number(((p*(r/12)*Math.pow((1+r/12), n))/(Math.pow((1+r/12), n) - 1)).toFixed(2));
+
+    let interestpayment = Number((p*r/12).toFixed(2));
+    let loanbalance = Number((parseInt(inputData.initialloan, 10) - m + interestpayment).toFixed(2));
+    let equity = Number((parseInt(inputData.downpayment, 10) + m - interestpayment).toFixed(2));
+    let calcData = {};
+         
+    calcData = {
+      1: {
+        month: 1,
+        totalpayment: m,
+        interestpayment: interestpayment,
+        loanbalance: loanbalance,
+        equity: equity,
+      }
+    };
+    for(let i=2; i<=n; i++) {
+      interestpayment = Number((loanbalance*r/12).toFixed(2));
+      loanbalance = Number((loanbalance - m + interestpayment).toFixed(2));
+      equity = Number((equity + m - interestpayment).toFixed(2));
+
+      calcData = {
+        ...calcData,
+        [i]: {
+          month: i,
+          totalpayment: m,
+          interestpayment: interestpayment,
+          loanbalance: loanbalance,
+          equity: equity,
+        }
+      };
+    }
+
+    return calcData;
+  }
+
+  const saveBankHistory = () => {
+    const { initialloan, downpayment, bankname } = inputData;
+    fetch(`${SERVER_PATH}/mortgage-calculator/history`, {
+      method: 'post',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ bankname, initialloan, downpayment })
+    })
+    .then((res) => res.json())
+    .then((data) => {
+      if(data.id) console.log('success');
+      else console.log(data);
+    })
+    .catch(console.log);
+  }
+
+  const loadBankHistory = (bank) => {
+    setBankHistory({});
+    fetch(`${SERVER_PATH}/mortgage-calculator/history/${bank}`)
+    .then(res => res.json())
+    .then(data => {
+      if(data.length) {
+        let temp = {};
+        data.map((el) => temp = {
+          ...temp, 
+          [el.date.split('.')[0].replace(/T/, ' ')]: {
+            ...el, date: el.date.split('.')[0].replace(/T/, ' ')
+          }
+        });
+        setBankHistory(temp);
+        // setShowHistory(false);
+        // setCurrencyHystory(data.map(({date}) => date.split('.')[0].replace(/T/, ' ')));
+      } else {
+        console.log(`"${bank}" have no history`);
+        // setBankHistory({});
+        // setShowHistory(false);
+      }
     })
     .catch(console.log);
   }
@@ -82,24 +179,40 @@ const MortgageCalculator = () => {
   // load a banks list from the database when component did mount
   React.useEffect(() => {
     loadBanks();
+    
+    if(historyBank) {
+      handleBankChange({target:{value: historyBank}});
+    }
   }, []);
+  // when the bank will be chosen check and load bank's history
+  React.useEffect(() => {
+    if(inputData.bankname) loadBankHistory(inputData.bankname);
+  }, [inputData.bankname]);
+  // when history will be loaded choose the first record
+  React.useEffect(() => {
+    if(historyBank && Object.keys(bankHistory).length) {
+      handleHistoryChange({target:{value: Object.values(bankHistory)[0].date}})
+    }
+  }, [bankHistory]);
 
   const onInputChange = (event, fieldName) => {
     setInputData((prevState) => ({
       ...prevState,
       [fieldName]: event.target.value
     }));
-    setIsCalculated(false);
+
+    setOutputData({});
   }
 
   const handleBankChange = (event) => {
-    setCurrency(event.target.value);
     setInputData((prevState) => (
       {
         ...prevState,
         bankname: event.target.value,
+        bankData: {},
       }
     ));
+    setOutputData({});
     // get selected bank's data from server
     fetch(`${SERVER_PATH}/mortgage-calculator/${event.target.value}`)
     .then((res) => res.json())
@@ -108,14 +221,28 @@ const MortgageCalculator = () => {
         setInputData((prevState) => ({
           ...prevState,
           bankData: data,
-        }))
+        }));
       } else console.log(data);
     })
     .catch(console.log);
   }
 
-  const handleButtonClick = () => {
+  const handleHistoryChange = (event) => {
+    setCurrentHistory(event.target.value);
+
+    setInputData((prevState) => (
+      {
+        ...prevState,
+        initialloan: bankHistory[event.target.value].initialloan,
+        downpayment: bankHistory[event.target.value].downpayment,
+      }
+    ));
+    if(inputData.bankData.id) setOutputData(calculatePayments());
+  }
+
+  const handleButtonClick = (event) => {
     clearAllErrors();
+    setOutputData({});
 
     if( !inputData.bankname ) return setError('bankname');
     if( !inputData.initialloan ) return setError('initialloan');
@@ -124,58 +251,12 @@ const MortgageCalculator = () => {
     if( parseInt(inputData.downpayment) < parseInt(inputData.bankData.mindownpayment) ) return setError('downpayment');
 
     if(inputData.bankData.id) {
-      let p = parseInt(inputData.initialloan, 10);
-      let r = parseInt(inputData.bankData.interestrate, 10)/100;
-      let n = 1;
-      if(inputData.bankData.loanterm.includes('m')) n = parseInt(inputData.bankData.loanterm, 10);
-      else if(inputData.bankData.loanterm.includes('y')) n = parseInt(inputData.bankData.loanterm, 10) * 12;
-      
-      let m = Number(((p*(r/12)*Math.pow((1+r/12), n))/(Math.pow((1+r/12), n) - 1)).toFixed(2));
-      
-      console.log('p=',p);
-      console.log('r=',r);
-      console.log('n=',n);
-      console.log('m=',m);
+      // calculate all payments
+      setOutputData(calculatePayments());
 
-      let interestpayment = Number((p*r/12).toFixed(2));
-      let loanbalance = Number((parseInt(inputData.initialloan, 10) - m + interestpayment).toFixed(2));
-      let equity = Number((parseInt(inputData.downpayment, 10) + m - interestpayment).toFixed(2));
-      let calcData = {};
-      
-      
-      calcData = {
-        1: {
-          month: 1,
-          totalpayment: m,
-          interestpayment: interestpayment,
-          loanbalance: loanbalance,
-          equity: equity,
-        }
-      };
-      for(let i=2; i<=n; i++) {
-        interestpayment = Number((loanbalance*r/12).toFixed(2));
-        console.log(i,'ip1=',interestpayment);
-        loanbalance = Number((loanbalance - m + interestpayment).toFixed(2));
-        console.log(i,'lb1=',loanbalance);
-        equity = Number((equity + m - interestpayment).toFixed(2));
-        console.log(i,'eq = ', equity);
-
-        calcData = {
-          ...calcData,
-          [i]: {
-            month: i,
-            totalpayment: m,
-            interestpayment: interestpayment,
-            loanbalance: loanbalance,
-            equity: equity,
-          }
-        };
-      }
-
-      setOutputData(calcData);
-
-      setIsCalculated(true);
-    } else  setIsCalculated(false);
+      // save input data to the bank's history
+      saveBankHistory();
+    }
   }
 
   return (
@@ -195,6 +276,7 @@ const MortgageCalculator = () => {
             id="outlined-helperText-bankname"
             label="Initial Loan"
             helperText="Please indicate your initial loan"
+            value={inputData.initialloan}
             error={helperError.initialloan}
             variant="outlined"
             margin="normal"
@@ -204,6 +286,7 @@ const MortgageCalculator = () => {
             id="outlined-helperText-interestrate"
             label="Down Payment"
             helperText="Please indicate the down payment"
+            value={inputData.downpayment}
             error={helperError.downpayment}
             variant="outlined"
             margin="normal"
@@ -213,7 +296,7 @@ const MortgageCalculator = () => {
             id="outlined-select-currency"
             select
             label="Select The Bank"
-            value={currency}
+            value={inputData.bankname}
             onChange={handleBankChange}
             helperText="Please select the bank you need"
             error={helperError.bankname}
@@ -232,6 +315,30 @@ const MortgageCalculator = () => {
               <></>
           }
           </TextField>
+          {
+            Object.keys(bankHistory).length
+            ?
+              <TextField
+                id="outlined-select-currencyHistory"
+                select
+                label="HISTORY: select The Date"
+                value={currentHistory}
+                onChange={handleHistoryChange}
+                helperText="HISTORY: select the date you whant to see"
+                variant="outlined"
+                margin="normal"
+              >
+                {
+                  Object.values(bankHistory).map((hist) => (
+                    <MenuItem key={hist.date} value={hist.date}>
+                      {hist.date}
+                    </MenuItem>
+                  ))
+                }
+              </TextField>
+            :
+              <></>
+          }
           <div>
             <Button 
               variant="contained" 
@@ -243,7 +350,7 @@ const MortgageCalculator = () => {
         </div>
       </div>
       {
-        isCalculated
+        Object.keys(outputData).length
         ?
         <div>
           <TableContainer className={classes.paper} component={Paper}>
@@ -260,13 +367,11 @@ const MortgageCalculator = () => {
               <TableBody>
                 {Object.values(outputData).map((data) => (
                   <TableRow key={data.bankname}>
-                    <TableCell align="center" component="th" scope="data">
-                      {data.month}
-                    </TableCell>
-                    <TableCell align="center">{data.totalpayment}</TableCell>
-                    <TableCell align="center">{data.interestpayment}</TableCell>
-                    <TableCell align="center">{data.loanbalance}</TableCell>
-                    <TableCell align="center">{data.equity}</TableCell>
+                    <TableCell key={data.month + 1} align="center">{data.month}</TableCell>
+                    <TableCell key={data.month + 2} align="center">{data.totalpayment}</TableCell>
+                    <TableCell key={data.month + 3} align="center">{data.interestpayment}</TableCell>
+                    <TableCell key={data.month + 4} align="center">{data.loanbalance}</TableCell>
+                    <TableCell key={data.month + 5} align="center">{data.equity}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
